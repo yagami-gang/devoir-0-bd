@@ -1,0 +1,88 @@
+création des tables question 2
+
+DROP TABLE IF EXISTS Etudiant;
+CREATE TABLE Etudiant (
+    NumCINEtu INT AUTO_INCREMENT,
+    NomEtu VARCHAR(255),
+    prenomEtu VARCHAR(255),
+    dateNaissance DATE,
+    AdresseEtu VARCHAR(255),
+    VilleEtu VARCHAR(255),
+    NiveauEtu CHAR(25),
+    PRIMARY KEY (NumCINEtu)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS Session;
+CREATE TABLE Session (
+    codeSess INT AUTO_INCREMENT,
+    nomSess CHAR(255),
+    dateDebut DATE,
+    dateFin DATE,
+    codeForm_Formation INT,
+    PRIMARY KEY (codeSess),
+    FOREIGN KEY (codeForm_Formation) REFERENCES Formation(codeForm)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS Specialite;
+CREATE TABLE Specialite (
+    codeSpec INT AUTO_INCREMENT,
+    nomSpec VARCHAR(255),
+    descSpec TEXT,
+    PRIMARY KEY (codeSpec)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS Formation;
+CREATE TABLE Formation (
+    codeForm INT AUTO_INCREMENT,
+    titreForm VARCHAR(255),
+    dureeForm TIME,
+    prixForm FLOAT,
+    PRIMARY KEY (codeForm)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS EstInscrit;
+CREATE TABLE EstInscrit (
+    TypeCours VARCHAR(255),
+    NumCINEtu_Etudiant INT,
+    codeSess_Session INT,
+    PRIMARY KEY (NumCINEtu_Etudiant, codeSess_Session),
+    FOREIGN KEY (NumCINEtu_Etudiant) REFERENCES Etudiant(NumCINEtu),
+    FOREIGN KEY (codeSess_Session) REFERENCES Session(codeSess)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS Appartient;
+CREATE TABLE Appartient (
+    codeSpec_Specialite INT,
+    codeForm_Formation INT,
+    PRIMARY KEY (codeSpec_Specialite, codeForm_Formation),
+    FOREIGN KEY (codeSpec_Specialite) REFERENCES Specialite(codeSpec),
+    FOREIGN KEY (codeForm_Formation) REFERENCES Formation(codeForm)
+) ENGINE=InnoDB;
+
+
+
+
+script pour la question 4
+
+DELIMITER //
+
+CREATE TRIGGER before_session_insert
+BEFORE INSERT ON Session
+FOR EACH ROW
+BEGIN
+    IF NEW.dateFin <= NEW.dateDebut THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La date de fin doit être postérieure à la date de début.';
+    END IF;
+END //
+
+CREATE TRIGGER before_session_update
+BEFORE UPDATE ON Session
+FOR EACH ROW
+BEGIN
+    IF NEW.dateFin <= NEW.dateDebut THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La date de fin doit être postérieure à la date de début.';
+    END IF;
+END //
+
+DELIMITER ;
+
